@@ -1,20 +1,51 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { NavigationContainer } from '@react-navigation/native'
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../types';
+import { RootStackParamList } from '../types';
 import Home from '../screens/Home';
+import EventAdd from '../screens/EventAdd';
+import { Provider } from 'react-redux';
+import { store } from '../store/store';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+const Stack = createNativeStackNavigator<RootStackParamList>() as any;
 
 const AppNavigation = () => {
-    const Stack = createNativeStackNavigator<RootStackParamList>();
-
     return (
-    <NavigationContainer>
-        <Stack.Navigator id={undefined} screenOptions={{headerShown: false}}>
-            <Stack.Screen name="Home" component={Home} />
-        </Stack.Navigator>
-    </NavigationContainer>
-  )
-}
+        <Provider store={store}>
+            <NavigationContainer>
+                <Stack.Navigator
+                    initialRouteName="Home"
+                    screenOptions={{
+                        headerShown: true,
+                        headerShadowVisible: false,
+                        headerStyle: {
+                            backgroundColor: '#F9FAFB'
+                        }
+                    }}
+                >
+                    <Stack.Screen
+                        name="Home"
+                        component={Home}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name="EventAdd"
+                        component={EventAdd}
+                        options={({ navigation }) => ({
+                            title: 'Add Event',
+                            headerLeft: () => (
+                                <TouchableOpacity onPress={() => navigation.goBack()}>
+                                    <Ionicons name="arrow-back" size={24} color="black" />
+                                </TouchableOpacity>
+                            )
+                        })}
+                    />
+                </Stack.Navigator>
+            </NavigationContainer>
+        </Provider>
+    );
+};
 
-export default AppNavigation
+export default AppNavigation;

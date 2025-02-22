@@ -21,6 +21,8 @@ const EventAdd = ({ route }) => {
   const [endDate, setEndDate] = useState(editEvent ? new Date(editEvent.endDate) : new Date());
   const [showStartTime, setShowStartTime] = useState(false);
   const [showEndTime, setShowEndTime] = useState(false);
+  const [error, setError] = useState('');
+
   const [repeatOption, setRepeatOption] = useState<'None' | 'Weekly' | 'Bi-weekly' | 'Monthly'>(
     editEvent?.repeatOption || 'None'
   );
@@ -37,12 +39,12 @@ const EventAdd = ({ route }) => {
   }, [navigation, editEvent]);
 
   const formatDate = (date) => date.toISOString().split('T')[0];
-  
+
   const getMarkedDates = () => {
     const startDateStr = formatDate(startDate);
     const endDateStr = formatDate(endDate);
     const marked = {
-      [startDateStr]: { 
+      [startDateStr]: {
         selected: true,
         color: '#FFB800',
         textColor: 'white'
@@ -59,7 +61,7 @@ const EventAdd = ({ route }) => {
         textColor: dateStr === endDateStr ? 'white' : 'black'
       };
     }
-    
+
     return marked;
   };
 
@@ -72,6 +74,10 @@ const EventAdd = ({ route }) => {
   };
 
   const handleSave = () => {
+    if (!eventName.trim()) {
+      setError('Event name is required.');
+      return;
+    }
     const eventData = {
       id: editEvent?.id || nanoid(),
       name: eventName,
@@ -129,19 +135,23 @@ const EventAdd = ({ route }) => {
             minDate={new Date().toISOString().split('T')[0]}
           />
           <View style={tw`bg-white rounded-xl p-4 shadow`}>
-            <View style={tw`mb-4`}>
+          <View style={tw`mb-4`}>
               <Text style={tw`text-gray-500 mb-1 text-sm`}>Event Name</Text>
               <TextInput
                 placeholder="Enter Name"
                 value={eventName}
-                onChangeText={setEventName}
+                onChangeText={(text) => {
+                  setEventName(text);
+                  setError('');
+                }}
                 style={tw`text-base border-b border-gray-200 pb-1`}
               />
+              {error ? <Text style={tw`text-red-500 mt-1`}>{error}</Text> : null}
             </View>
 
             <View style={tw`mb-4`}>
               <Text style={tw`text-gray-500 mb-1 text-sm`}>Start Time</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setShowStartTime(true)}
                 style={tw`flex-row items-center justify-between border-b border-gray-200 pb-1`}
               >
@@ -158,7 +168,7 @@ const EventAdd = ({ route }) => {
 
             <View style={tw`mb-4`}>
               <Text style={tw`text-gray-500 mb-1 text-sm`}>End Time</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setShowEndTime(true)}
                 style={tw`flex-row items-center justify-between border-b border-gray-200 pb-1`}
               >
@@ -191,7 +201,6 @@ const EventAdd = ({ route }) => {
           </View>
         </View>
       </ScrollView>
-
       {showStartTime && (
         <DateTimePicker
           value={startDate}
@@ -227,7 +236,7 @@ const EventAdd = ({ route }) => {
       )}
 
       <View style={tw`p-4`}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={tw`bg-yellow-400 p-4 rounded-full items-center`}
           onPress={handleSave}
         >

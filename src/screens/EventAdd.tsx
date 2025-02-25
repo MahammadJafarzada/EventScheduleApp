@@ -17,8 +17,9 @@ const EventAdd = ({ route }) => {
   const editEvent = route.params?.event;
 
   const [eventName, setEventName] = useState(editEvent?.name || '');
-  const [startDate, setStartDate] = useState(editEvent ? new Date(editEvent.startDate) : new Date());
-  const [endDate, setEndDate] = useState(editEvent ? new Date(editEvent.endDate) : new Date());
+  const [selectedDate, setSelectedDate] = useState(editEvent ? new Date(editEvent.startDate) : new Date());
+  const [startTime, setStartTime] = useState(editEvent ? new Date(editEvent.startDate) : new Date());
+  const [endTime, setEndTime] = useState(editEvent ? new Date(editEvent.endDate) : new Date());
   const [showStartTime, setShowStartTime] = useState(false);
   const [showEndTime, setShowEndTime] = useState(false);
   const [error, setError] = useState('');
@@ -41,28 +42,14 @@ const EventAdd = ({ route }) => {
   const formatDate = (date) => date.toISOString().split('T')[0];
 
   const getMarkedDates = () => {
-    const startDateStr = formatDate(startDate);
-    const endDateStr = formatDate(endDate);
-    const marked = {
-      [startDateStr]: {
+    const dateStr = formatDate(selectedDate);
+    return {
+      [dateStr]: {
         selected: true,
         color: '#FFB800',
         textColor: 'white'
       }
     };
-
-    let currentDate = new Date(startDate);
-    while (formatDate(currentDate) !== endDateStr) {
-      currentDate.setDate(currentDate.getDate() + 1);
-      const dateStr = formatDate(currentDate);
-      marked[dateStr] = {
-        selected: true,
-        color: dateStr === endDateStr ? '#FFB800' : '#FFE4B0',
-        textColor: dateStr === endDateStr ? 'white' : 'black'
-      };
-    }
-
-    return marked;
   };
 
   const formatTimeDisplay = (date: Date) => {
@@ -78,11 +65,19 @@ const EventAdd = ({ route }) => {
       setError('Event name is required.');
       return;
     }
+    
+    // Create start and end date by combining selected date with start and end times
+    const start = new Date(selectedDate);
+    start.setHours(startTime.getHours(), startTime.getMinutes());
+    
+    const end = new Date(selectedDate);
+    end.setHours(endTime.getHours(), endTime.getMinutes());
+    
     const eventData = {
       id: editEvent?.id || nanoid(),
       name: eventName,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
+      startDate: start.toISOString(),
+      endDate: end.toISOString(),
       repeatOption
     };
 
@@ -101,7 +96,6 @@ const EventAdd = ({ route }) => {
           <Calendar
             style={tw`rounded-xl bg-white shadow mb-4`}
             markedDates={getMarkedDates()}
-            markingType="period"
             theme={{
               selectedDayBackgroundColor: '#FFB800',
               todayTextColor: '#FFB800',
@@ -112,30 +106,14 @@ const EventAdd = ({ route }) => {
               textDayHeaderFontSize: 14,
             }}
             onDayPress={(day) => {
-              const selectedDate = new Date(day.timestamp);
-              const selectedTime = new Date(selectedDate);
-              if (startDate) {
-                selectedTime.setHours(startDate.getHours(), startDate.getMinutes());
-              }
-
-              if (!startDate || (startDate && endDate && startDate.getTime() !== endDate.getTime())) {
-                setStartDate(selectedTime);
-                setEndDate(selectedTime);
-              } else {
-                if (selectedDate < startDate) {
-                  setStartDate(selectedTime);
-                } else {
-                  const endTime = new Date(selectedDate);
-                  endTime.setHours(endDate.getHours(), endDate.getMinutes());
-                  setEndDate(endTime);
-                }
-              }
+              const newSelectedDate = new Date(day.timestamp);
+              setSelectedDate(newSelectedDate);
             }}
             enableSwipeMonths={true}
             minDate={new Date().toISOString().split('T')[0]}
           />
           <View style={tw`bg-white rounded-xl p-4 shadow`}>
-          <View style={tw`mb-4`}>
+            <View style={tw`mb-4`}>
               <Text style={tw`text-gray-500 mb-1 text-sm`}>Event Name</Text>
               <TextInput
                 placeholder="Enter Name"
@@ -150,37 +128,39 @@ const EventAdd = ({ route }) => {
             </View>
 
             <View style={tw`mb-4`}>
-              <Text style={tw`text-gray-500 mb-1 text-sm`}>Start Time</Text>
-              <TouchableOpacity
-                onPress={() => setShowStartTime(true)}
-                style={tw`flex-row items-center justify-between border-b border-gray-200 pb-1`}
-              >
-                <Text style={tw`text-base`}>{formatTimeDisplay(startDate)}</Text>
-                <Text style={tw`text-base text-gray-500`}>
-                  {startDate.toLocaleDateString('en-US', {
-                    month: 'short',
+              <Text style={tw`text-gray-500 mb-1 text-sm`}>Date</Text>
+              <View style={tw`border-b border-gray-200 pb-1`}>
+                <Text style={tw`text-base`}>
+                  {selectedDate.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    month: 'long',
                     day: 'numeric',
                     year: 'numeric'
                   })}
                 </Text>
-              </TouchableOpacity>
+              </View>
             </View>
 
-            <View style={tw`mb-4`}>
-              <Text style={tw`text-gray-500 mb-1 text-sm`}>End Time</Text>
-              <TouchableOpacity
-                onPress={() => setShowEndTime(true)}
-                style={tw`flex-row items-center justify-between border-b border-gray-200 pb-1`}
-              >
-                <Text style={tw`text-base`}>{formatTimeDisplay(endDate)}</Text>
-                <Text style={tw`text-base text-gray-500`}>
-                  {endDate.toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </Text>
-              </TouchableOpacity>
+            <View style={tw`flex-row mb-4`}>
+              <View style={tw`flex-1 mr-2`}>
+                <Text style={tw`text-gray-500 mb-1 text-sm`}>Start Time</Text>
+                <TouchableOpacity
+                  onPress={() => setShowStartTime(true)}
+                  style={tw`border-b border-gray-200 pb-1`}
+                >
+                  <Text style={tw`text-base`}>{formatTimeDisplay(startTime)}</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={tw`flex-1 ml-2`}>
+                <Text style={tw`text-gray-500 mb-1 text-sm`}>End Time</Text>
+                <TouchableOpacity
+                  onPress={() => setShowEndTime(true)}
+                  style={tw`border-b border-gray-200 pb-1`}
+                >
+                  <Text style={tw`text-base`}>{formatTimeDisplay(endTime)}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View>
@@ -203,16 +183,16 @@ const EventAdd = ({ route }) => {
       </ScrollView>
       {showStartTime && (
         <DateTimePicker
-          value={startDate}
+          value={startTime}
           mode="time"
           is24Hour={false}
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={(event, selectedDate) => {
+          onChange={(event, selectedTime) => {
             setShowStartTime(false);
-            if (selectedDate) {
-              setStartDate(selectedDate);
-              if (endDate < selectedDate) {
-                setEndDate(selectedDate);
+            if (selectedTime) {
+              setStartTime(selectedTime);
+              if (endTime < selectedTime) {
+                setEndTime(selectedTime);
               }
             }
           }}
@@ -221,15 +201,15 @@ const EventAdd = ({ route }) => {
 
       {showEndTime && (
         <DateTimePicker
-          value={endDate}
+          value={endTime}
           mode="time"
           is24Hour={false}
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          minimumDate={startDate}
-          onChange={(event, selectedDate) => {
+          minimumDate={startTime}
+          onChange={(event, selectedTime) => {
             setShowEndTime(false);
-            if (selectedDate) {
-              setEndDate(selectedDate);
+            if (selectedTime) {
+              setEndTime(selectedTime);
             }
           }}
         />

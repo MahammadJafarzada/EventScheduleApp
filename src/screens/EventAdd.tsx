@@ -6,7 +6,7 @@ import { Calendar } from 'react-native-calendars';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import tw from 'twrnc';
 import { useDispatch } from 'react-redux';
-import { addEvent, updateEvent } from '../store/eventSlice';
+import { addEvent, updateEvent } from '../redux/eventSlice';
 import { useNavigation } from '@react-navigation/native';
 import { nanoid } from '@reduxjs/toolkit';
 import { Ionicons } from '@expo/vector-icons';

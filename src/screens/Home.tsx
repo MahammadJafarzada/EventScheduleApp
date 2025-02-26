@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { deleteEvent } from '../redux/eventSlice';
+import { deleteEvent, setEvents, loadEventsFromStorage } from '../redux/eventSlice';
 import { RootState } from '../redux/store';
 import tw from 'twrnc';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -14,6 +14,17 @@ const Home = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const dispatch = useDispatch();
   const events = useSelector((state: RootState) => state.events.events);
+  const [loading, setLoading] = React.useState(true);
+
+  useEffect(() => {
+    const loadEvents = async () => {
+      const storedEvents = await loadEventsFromStorage();
+      dispatch(setEvents(storedEvents));
+      setLoading(false);
+    };
+
+    loadEvents();
+  }, [dispatch]);
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -49,6 +60,14 @@ const Home = () => {
     </View>
   );
 
+  if (loading) {
+    return (
+      <SafeAreaView style={tw`flex-1 justify-center items-center`}>
+        <ActivityIndicator size="large" color="#FFB800" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-50`}>
       <View style={tw`p-4 flex-row justify-between items-center border-b border-gray-200`}>
@@ -64,12 +83,11 @@ const Home = () => {
         </View>
       ) : (
         <FlatList
-        data={[...events].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={tw`p-4`}
-      />
-      
+          data={[...events].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={tw`p-4`}
+        />
       )}
 
       <TouchableOpacity 

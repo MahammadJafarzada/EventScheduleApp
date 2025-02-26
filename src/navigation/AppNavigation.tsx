@@ -3,8 +3,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from '../screens/Home';
 import EventAdd from '../screens/EventAdd';
-import { Provider } from 'react-redux';
-import { store } from '../redux/store';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import EventHistory from '../screens/EventHistory';
@@ -14,7 +12,6 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigation = () => {
     return (
-        <Provider store={store}>
             <NavigationContainer>
                 <Stack.Navigator
                     id={undefined}
@@ -58,7 +55,6 @@ const AppNavigation = () => {
                     />
                 </Stack.Navigator>
             </NavigationContainer>
-        </Provider>
     );
 };
 

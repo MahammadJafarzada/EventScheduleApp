@@ -1,15 +1,17 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { deleteEvent } from '../store/eventSlice';
 import { RootState } from '../store/store';
 import tw from 'twrnc';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { RootStackParamList } from '../../types';
 
 const Home = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const dispatch = useDispatch();
   const events = useSelector((state: RootState) => state.events.events);
 
@@ -51,6 +53,9 @@ const Home = () => {
     <SafeAreaView style={tw`flex-1 bg-gray-50`}>
       <View style={tw`p-4 flex-row justify-between items-center border-b border-gray-200`}>
         <Text style={tw`text-xl font-bold`}>Events</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('EventHistory')}>
+          <FontAwesome5 name="history" size={24} color="#666" />
+        </TouchableOpacity>
       </View>
 
       {events.length === 0 ? (

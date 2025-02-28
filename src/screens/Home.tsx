@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react
 import { useSelector, useDispatch } from 'react-redux';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { deleteEvent, setEvents, loadEventsFromStorage } from '../redux/eventSlice';
+import { deleteEvent, setEvents, loadEventsFromStorage, moveEventToHistory } from '../redux/eventSlice';
 import { RootState } from '../redux/store';
 import tw from 'twrnc';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -18,14 +18,15 @@ const Home = () => {
 
   useEffect(() => {
     const loadEvents = async () => {
-      const storedEvents = await loadEventsFromStorage();
-      dispatch(setEvents(storedEvents));
+      const { events, pastEvents } = await loadEventsFromStorage();
+      dispatch(setEvents({ events, pastEvents }));
+      dispatch(moveEventToHistory()); // Move expired events to history
       setLoading(false);
     };
-
+  
     loadEvents();
   }, [dispatch]);
-
+  
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -42,8 +43,8 @@ const Home = () => {
       <View style={tw`flex-row justify-between items-start`}>
         <View style={tw`flex-1`}>
           <Text style={tw`text-lg font-semibold mb-2`}>{item.name}</Text>
-          <Text style={tw`text-gray-600`}>From: {formatDateTime(item.startDate)}</Text>
-          <Text style={tw`text-gray-600`}>To: {formatDateTime(item.endDate)}</Text>
+          <Text style={tw`text-gray-600 text-sm`}>From: {formatDateTime(item.startDate)}</Text>
+          <Text style={tw`text-gray-600 text-sm`}>To: {formatDateTime(item.endDate)}</Text>
           {item.repeatOption !== 'None' && (
             <Text style={tw`text-gray-500 mt-1`}>Repeats: {item.repeatOption}</Text>
           )}

@@ -12,49 +12,35 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigation = () => {
     return (
-            <NavigationContainer>
-                <Stack.Navigator
-                    id={undefined}
-                    initialRouteName="Home"
-                    screenOptions={{
-                        headerShown: true,
-                        headerShadowVisible: false,
-                        headerStyle: {
-                            backgroundColor: '#F9FAFB'
-                        }
-                    }}
-                >
-                    <Stack.Screen
-                        name="Home"
-                        component={Home}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name="EventAdd"
-                        component={EventAdd}
-                        options={({ navigation }) => ({
-                            title: 'Add Event',
-                            headerLeft: () => (
-                                <TouchableOpacity onPress={() => navigation.goBack()}>
-                                    <Ionicons name="arrow-back" size={24} color="black" />
-                                </TouchableOpacity>
-                            )
-                        })}
-                    />
-                    <Stack.Screen
-                        name="EventHistory"
-                        component={EventHistory}
-                        options={({ navigation }) => ({
-                            title: 'Event History',
-                            headerLeft: () => (
-                                <TouchableOpacity onPress={() => navigation.goBack()}>
-                                    <Ionicons name="arrow-back" size={24} color="black" />
-                                </TouchableOpacity>
-                            )
-                        })}
-                    />
-                </Stack.Navigator>
-            </NavigationContainer>
+        <NavigationContainer>
+            <Stack.Navigator
+                id={undefined}
+                initialRouteName="Home"
+                screenOptions={{
+                    headerShown: true,
+                    headerShadowVisible: false,
+                    headerStyle: {
+                        backgroundColor: '#F9FAFB'
+                    }
+                }}
+            >
+                <Stack.Screen
+                    name="Home"
+                    component={Home}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="EventAdd"
+                    component={EventAdd}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="EventHistory"
+                    component={EventHistory}
+                    options={{ headerShown: false }}
+                />
+            </Stack.Navigator>
+        </NavigationContainer>
     );
 };
 

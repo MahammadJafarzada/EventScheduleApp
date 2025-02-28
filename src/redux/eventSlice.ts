@@ -19,17 +19,17 @@ const initialState: EventState = {
   pastEvents: []
 };
 
-// Save both active and past events to storage
 const saveEventsToStorage = async (events: Event[], pastEvents: Event[]) => {
   try {
-    await AsyncStorage.setItem('events', JSON.stringify(events));
-    await AsyncStorage.setItem('pastEvents', JSON.stringify(pastEvents));
+    const serializedEvents = JSON.stringify([...events]); 
+    const serializedPastEvents = JSON.stringify([...pastEvents]);
+    await AsyncStorage.setItem('events', serializedEvents);
+    await AsyncStorage.setItem('pastEvents', serializedPastEvents);
   } catch (error) {
     console.error('Failed to save events:', error);
   }
 };
 
-// Load stored events
 export const loadEventsFromStorage = async () => {
   try {
     const storedEvents = await AsyncStorage.getItem('events');
@@ -53,9 +53,11 @@ const eventSlice = createSlice({
       state.pastEvents = action.payload.pastEvents;
     },
     addEvent: (state, action: PayloadAction<Event>) => {
-      state.events.push(action.payload);
-      saveEventsToStorage(state.events, state.pastEvents);
+      const newEvent = { ...action.payload };
+      state.events.push(newEvent);
+      saveEventsToStorage([...state.events], [...state.pastEvents]); 
     },
+    
     updateEvent: (state, action: PayloadAction<Event>) => {
       const index = state.events.findIndex(event => event.id === action.payload.id);
       if (index !== -1) {

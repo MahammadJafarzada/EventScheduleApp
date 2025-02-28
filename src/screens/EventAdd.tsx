@@ -15,7 +15,6 @@ const EventAdd = ({ route }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const editEvent = route.params?.event;
-
   const [eventName, setEventName] = useState(editEvent?.name || '');
   const [selectedDate, setSelectedDate] = useState(editEvent ? new Date(editEvent.startDate) : new Date());
   const [startTime, setStartTime] = useState(editEvent ? new Date(editEvent.startDate) : new Date());
@@ -65,29 +64,66 @@ const EventAdd = ({ route }) => {
       setError('Event name is required.');
       return;
     }
-    
-    // Create start and end date by combining selected date with start and end times
+
     const start = new Date(selectedDate);
     start.setHours(startTime.getHours(), startTime.getMinutes());
-    
+
     const end = new Date(selectedDate);
     end.setHours(endTime.getHours(), endTime.getMinutes());
-    
+
     const eventData = {
       id: editEvent?.id || nanoid(),
       name: eventName,
       startDate: start.toISOString(),
       endDate: end.toISOString(),
-      repeatOption
+      repeatOption,
     };
 
-    if (editEvent) {
-      dispatch(updateEvent(eventData));
+    if (repeatOption !== 'None') {
+      let repeatEvents = [eventData];
+
+      if (repeatOption === 'Weekly') {
+        let nextStartDate = new Date(start);
+        let nextEndDate = new Date(end);
+        for (let i = 1; i < 10; i++) {  
+          nextStartDate = new Date(nextStartDate.setDate(nextStartDate.getDate() + 7));
+          nextEndDate = new Date(nextEndDate.setDate(nextEndDate.getDate() + 7));
+          repeatEvents.push({
+            ...eventData,
+            id: nanoid(),
+            startDate: nextStartDate.toISOString(),
+            endDate: nextEndDate.toISOString(),
+          });
+        }
+      } else if (repeatOption === 'Bi-weekly') {
+        let nextStartDate = new Date(start);
+        let nextEndDate = new Date(end);
+        for (let i = 1; i < 10; i++) {  
+          nextStartDate = new Date(nextStartDate.setDate(nextStartDate.getDate() + 14));
+          nextEndDate = new Date(nextEndDate.setDate(nextEndDate.getDate() + 14));
+          repeatEvents.push({
+            ...eventData,
+            id: nanoid(),
+            startDate: nextStartDate.toISOString(),
+            endDate: nextEndDate.toISOString(),
+          });
+        }
+      }
+
+      repeatEvents.forEach(event => {
+        dispatch(addEvent(event));
+      });
     } else {
-      dispatch(addEvent(eventData));
+      if (editEvent) {
+        dispatch(updateEvent(eventData));
+      } else {
+        dispatch(addEvent(eventData));
+      }
     }
+
     navigation.goBack();
   };
+
 
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-50`}>

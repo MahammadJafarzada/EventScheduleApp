@@ -101,9 +101,14 @@ const EventAdd = ({ route }) => {
     repeatEvents.forEach(event => dispatch(addEvent(event)));
     navigation.goBack();
   };
-  
+
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-50`}>
+      <TouchableOpacity onPress={() => navigation.goBack()}
+        style={tw`flex-row items-center mb-4 `}>
+        <Ionicons name="arrow-back-sharp" size={24} color="black" style={tw`p-2`} />
+        <Text style={tw`text-2xl font-bold text-gray-900 pl-2`}>Event History</Text>
+      </TouchableOpacity>
       <ScrollView style={tw`flex-1`}>
         <View style={tw`p-4`}>
           <Calendar

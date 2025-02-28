@@ -93,7 +93,7 @@ const Home = () => {
 
       <TouchableOpacity 
         onPress={() => navigation.navigate('EventAdd')}
-        style={tw`absolute bottom-6 right-6 bg-blue-500 p-4 rounded-full shadow-lg`}>
+        style={tw`absolute bottom-6 right-6 bg-[#FFB800] p-4 rounded-full shadow-lg`}>
         <Ionicons name="add" size={30} color="white" />
       </TouchableOpacity>
     </SafeAreaView>

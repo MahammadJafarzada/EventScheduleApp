@@ -79,52 +79,29 @@ const EventAdd = ({ route }) => {
       repeatOption,
     };
 
-    if (repeatOption !== 'None') {
-      let repeatEvents = [eventData];
+    let repeatEvents = [eventData];
 
-      if (repeatOption === 'Weekly') {
-        let nextStartDate = new Date(start);
-        let nextEndDate = new Date(end);
-        for (let i = 1; i < 10; i++) {  
-          nextStartDate = new Date(nextStartDate.setDate(nextStartDate.getDate() + 7));
-          nextEndDate = new Date(nextEndDate.setDate(nextEndDate.getDate() + 7));
-          repeatEvents.push({
-            ...eventData,
-            id: nanoid(),
-            startDate: nextStartDate.toISOString(),
-            endDate: nextEndDate.toISOString(),
-          });
-        }
-      } else if (repeatOption === 'Bi-weekly') {
-        let nextStartDate = new Date(start);
-        let nextEndDate = new Date(end);
-        for (let i = 1; i < 10; i++) {  
-          nextStartDate = new Date(nextStartDate.setDate(nextStartDate.getDate() + 14));
-          nextEndDate = new Date(nextEndDate.setDate(nextEndDate.getDate() + 14));
-          repeatEvents.push({
-            ...eventData,
-            id: nanoid(),
-            startDate: nextStartDate.toISOString(),
-            endDate: nextEndDate.toISOString(),
-          });
-        }
-      }
+    if (repeatOption === 'Weekly' || repeatOption === 'Bi-weekly' || repeatOption === 'Monthly') {
+      let interval = repeatOption === 'Weekly' ? 7 : repeatOption === 'Bi-weekly' ? 14 : 30;
+      let nextStartDate = new Date(start);
+      let nextEndDate = new Date(end);
 
-      repeatEvents.forEach(event => {
-        dispatch(addEvent(event));
-      });
-    } else {
-      if (editEvent) {
-        dispatch(updateEvent(eventData));
-      } else {
-        dispatch(addEvent(eventData));
+      for (let i = 1; i < 10; i++) {
+        nextStartDate = new Date(nextStartDate.setDate(nextStartDate.getDate() + interval));
+        nextEndDate = new Date(nextEndDate.setDate(nextEndDate.getDate() + interval));
+        repeatEvents.push({
+          ...eventData,
+          id: nanoid(),
+          startDate: nextStartDate.toISOString(),
+          endDate: nextEndDate.toISOString(),
+        });
       }
     }
 
+    repeatEvents.forEach(event => dispatch(addEvent(event)));
     navigation.goBack();
   };
-
-
+  
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-50`}>
       <ScrollView style={tw`flex-1`}>
